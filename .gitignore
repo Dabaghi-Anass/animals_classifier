@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+#models
+
+*.h5
+animals_classification_model_new_dataset_sgd_optimizer_v2.h5
 # Distribution / packaging
 .Python
 build/
