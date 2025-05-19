@@ -247,6 +247,7 @@ h3 {
 	gap: 1rem;
 	align-items: center;
 	justify-content: center;
+	margin-bottom: 2rem;
 }
 
 #image-preview {
