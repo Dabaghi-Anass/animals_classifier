@@ -1,288 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zoo Animal Classifier</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="icon" href="images/sheep.png" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div class="zoo-container">
-      <header class="zoo-header">
-        <div class="zoo-banner">
-          <div class="animal-silhouettes"></div>
-          <h1>Wild Animal Classifier</h1>
-          <div class="animal-silhouettes"></div>
-        </div>
-      </header>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Zoo Animal Classifier</title>
+		<link rel="stylesheet" href="styles.css" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap"
+			rel="stylesheet" />
+	</head>
+	<body>
+		<div class="zoo-container">
+			<header class="zoo-header">
+				<div class="zoo-banner">
+					<div class="animal-silhouettes"></div>
+					<h1>Wild Animal Classifier</h1>
+					<div class="animal-silhouettes"></div>
+				</div>
+			</header>
 
-      <!-- <div class="server-url-container">
-        <label for="server-url">Server URL:</label>
-        <div class="url-input-container">
-          <input
-            type="text"
-            id="server-url"
-            value="http://localhost:8000"
-            placeholder=""
-          />
-          <button id="reset-btn">Reset</button>
-        </div>
-      </div> -->
+			<div class="card">
+				<div class="upload-container">
+					<label class="upload-label">
+						<svg
+							class="upload-icon"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round">
+							<path
+								d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+							<polyline points="17 8 12 3 7 8"></polyline>
+							<line x1="12" y1="3" x2="12" y2="15"></line>
+						</svg>
+						<span>Select an animal image</span>
+						<input
+							type="file"
+							id="image-upload"
+							accept="image/*"
+							hidden />
+					</label>
+				</div>
 
-      <div class="tabs">
-        <div class="tabs-list">
-          <button class="tab-trigger active" data-tab="upload">
-            <svg
-              class="icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-            Upload Image
-          </button>
-          <button class="tab-trigger" data-tab="webcam">
-            <svg
-              class="icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
-              ></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-            Webcam
-          </button>
-        </div>
+				<!-- Image preview container -->
+				<div
+					id="image-preview-container"
+					class="image-preview-container"
+					hidden>
+					<h3>Uploaded Image</h3>
+					<div class="image-preview-wrapper">
+						<img id="image-preview" alt="Uploaded image preview" />
+					</div>
+				</div>
+			</div>
 
-        <div class="tab-content active" id="upload-tab">
-          <div class="card">
-            <div class="upload-container">
-              <label class="upload-label">
-                <svg
-                  class="upload-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                <span>Select an animal image</span>
-                <input type="file" id="image-upload" accept="image/*" hidden />
-              </label>
-            </div>
+			<div class="results-container">
+				<!-- Image display for prediction context -->
+				<div
+					id="current-image-container"
+					class="current-image-container"
+					hidden>
+					<div class="current-image-wrapper">
+						<img
+							id="current-image"
+							alt="Current image being classified" />
+					</div>
+				</div>
 
-            <!-- Image preview container -->
-            <div
-              id="image-preview-container"
-              class="image-preview-container"
-              hidden
-            >
-              <h3>Uploaded Image</h3>
-              <div class="image-preview-wrapper">
-                <img id="image-preview" alt="Uploaded image preview" />
-              </div>
-            </div>
-          </div>
-        </div>
+				<!-- Prediction results -->
+				<div
+					id="prediction-container"
+					class="prediction-container"
+					hidden>
+					<div id="prediction-content" class="prediction-content">
+						<h2 id="prediction-title">Animal Detected</h2>
+						<div id="prediction-box" class="prediction-box">
+							<!-- Content will be dynamically inserted here -->
+						</div>
+					</div>
+				</div>
+			</div>
 
-        <div class="tab-content" id="webcam-tab">
-          <div class="card">
-            <div class="webcam-container">
-              <video id="video" playsinline muted></video>
-              <canvas id="canvas" hidden></canvas>
-            </div>
-            <div class="button-container">
-              <button id="start-stream" class="stream-btn">
-                <svg
-                  class="icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                </svg>
-                Start Stream
-              </button>
-              <button id="stop-stream" class="stream-btn destructive" hidden>
-                <svg
-                  class="icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <rect x="9" y="9" width="6" height="6"></rect>
-                </svg>
-                Stop Stream
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+			<!-- Animal info cards -->
+			<div class="animal-info-section">
+				<h2>Meet Our Zoo Animals</h2>
 
-      <div class="results-container">
-        <!-- Image display for prediction context -->
-        <div
-          id="current-image-container"
-          class="current-image-container"
-          hidden
-        >
-          <div class="current-image-wrapper">
-            <img id="current-image" alt="Current image being classified" />
-          </div>
-        </div>
+				<div class="animal-cards">
+					<div class="animal-card butterfly">
+						<div class="animal-icon">
+							<img
+								src="images/butterfly.png"
+								alt="Butterfly Icon"
+								class="animal-icon" />
+						</div>
+						<h3>Butterfly</h3>
+						<p>
+							Beautiful insects with colorful wings that undergo
+							metamorphosis.
+						</p>
+					</div>
+					<div class="animal-card cat">
+						<div class="animal-icon">
+							<img
+								src="images/cat.png"
+								alt="Cat Icon"
+								class="animal-icon" />
+						</div>
+						<h3>Cat</h3>
+						<p>
+							Agile, curious felines known for their independent
+							nature.
+						</p>
+					</div>
+					<div class="animal-card chicken">
+						<div class="animal-icon">
+							<img
+								src="images/chicken.png"
+								alt="Chicken Icon"
+								class="animal-icon" />
+						</div>
+						<h3>Chicken</h3>
+						<p>
+							Domesticated birds that are raised for their eggs
+							and meat.
+						</p>
+					</div>
+					<div class="animal-card cow">
+						<div class="animal-icon">
+							<img
+								src="images/cow.png"
+								alt="Cow Icon"
+								class="animal-icon" />
+						</div>
+						<h3>Cow</h3>
+						<p>
+							Large domesticated animals kept for milk and meat
+							production.
+						</p>
+					</div>
+					<div class="animal-card dog">
+						<div class="animal-icon">
+							<img
+								src="images/dog.png"
+								alt="Dog Icon"
+								class="animal-icon" />
+						</div>
+						<h3>Dog</h3>
+						<p>Loyal companions known as "man's best friend."</p>
+					</div>
+					<div class="animal-card elephant">
+						<div class="animal-icon">
+							<img
+								src="images/elephant.png"
+								alt="Elephant Icon"
+								class="animal-icon" />
+						</div>
+						<h3>Elephant</h3>
+						<p>
+							The largest land mammals with remarkable
+							intelligence and memory.
+						</p>
+					</div>
+					<div class="animal-card horse">
+						<div class="animal-icon">
+							<img
+								src="images/horse.png"
+								alt="Horse Icon"
+								class="animal-icon" />
+						</div>
+						<h3>Horse</h3>
+						<p>
+							Majestic animals known for their speed, strength,
+							and grace.
+						</p>
+					</div>
+					<div class="animal-card sheep">
+						<div class="animal-icon">
+							<img
+								src="images/sheep.png"
+								alt="Sheep Icon"
+								class="animal-icon" />
+						</div>
+						<h3>Sheep</h3>
+						<p>
+							Wooly animals raised for their fleece, meat, and
+							milk.
+						</p>
+					</div>
+					<div class="animal-card spider">
+						<div class="animal-icon">
+							<img
+								src="images/spider.png"
+								alt="Spider Icon"
+								class="animal-icon" />
+						</div>
+						<h3>Spider</h3>
+						<p>
+							Eight-legged arthropods that spin intricate webs to
+							catch prey.
+						</p>
+					</div>
+					<div class="animal-card squirrel">
+						<div class="animal-icon">
+							<img
+								src="images/squirrel.png"
+								alt="Squirrel Icon"
+								class="animal-icon" />
+						</div>
+						<h3>Squirrel</h3>
+						<p>
+							Agile rodents known for gathering and storing nuts.
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
 
-        <!-- Prediction results -->
-        <div id="prediction-container" class="prediction-container" hidden>
-          <div id="prediction-content" class="prediction-content">
-            <h2 id="prediction-title">Animal Detected</h2>
-            <div id="prediction-box" class="prediction-box">
-              <!-- Content will be dynamically inserted here -->
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Animal info cards -->
-      <div class="animal-info-section">
-        <h2>Meet Our Zoo Animals</h2>
-        <div class="animal-cards">
-          <div class="animal-card butterfly">
-            <div class="animal-icon">
-              <img
-                src="images/butterfly.png"
-                alt="Butterfly Icon"
-                class="animal-icon"
-              />
-            </div>
-            <h3>Butterfly</h3>
-            <p>
-              Beautiful insects with colorful wings that undergo metamorphosis.
-            </p>
-          </div>
-          <div class="animal-card cat">
-            <div class="animal-icon">
-              <img src="images/cat.png" alt="Cat Icon" class="animal-icon" />
-            </div>
-            <h3>Cat</h3>
-            <p>Agile, curious felines known for their independent nature.</p>
-          </div>
-          <div class="animal-card chicken">
-            <div class="animal-icon">
-              <img
-                src="images/chicken.png"
-                alt="Chicken Icon"
-                class="animal-icon"
-              />
-            </div>
-            <h3>Chicken</h3>
-            <p>Domesticated birds that are raised for their eggs and meat.</p>
-          </div>
-          <div class="animal-card cow">
-            <div class="animal-icon">
-              <img src="images/cow.png" alt="Cow Icon" class="animal-icon" />
-            </div>
-            <h3>Cow</h3>
-            <p>Large domesticated animals kept for milk and meat production.</p>
-          </div>
-          <div class="animal-card dog">
-            <div class="animal-icon">
-              <img src="images/dog.png" alt="Dog Icon" class="animal-icon" />
-            </div>
-            <h3>Dog</h3>
-            <p>Loyal companions known as "man's best friend."</p>
-          </div>
-          <div class="animal-card elephant">
-            <div class="animal-icon">
-              <img
-                src="images/elephant.png"
-                alt="Elephant Icon"
-                class="animal-icon"
-              />
-            </div>
-            <h3>Elephant</h3>
-            <p>
-              The largest land mammals with remarkable intelligence and memory.
-            </p>
-          </div>
-          <div class="animal-card horse">
-            <div class="animal-icon">
-              <img
-                src="images/horse.png"
-                alt="Horse Icon"
-                class="animal-icon"
-              />
-            </div>
-            <h3>Horse</h3>
-            <p>Majestic animals known for their speed, strength, and grace.</p>
-          </div>
-          <div class="animal-card sheep">
-            <div class="animal-icon">
-              <img
-                src="images/sheep.png"
-                alt="Sheep Icon"
-                class="animal-icon"
-              />
-            </div>
-            <h3>Sheep</h3>
-            <p>Wooly animals raised for their fleece, meat, and milk.</p>
-          </div>
-          <div class="animal-card spider">
-            <div class="animal-icon">
-              <img
-                src="images/spider.png"
-                alt="Spider Icon"
-                class="animal-icon"
-              />
-            </div>
-            <h3>Spider</h3>
-            <p>
-              Eight-legged arthropods that spin intricate webs to catch prey.
-            </p>
-          </div>
-          <div class="animal-card squirrel">
-            <div class="animal-icon">
-              <img
-                src="images/squirrel.png"
-                alt="Squirrel Icon"
-                class="animal-icon"
-              />
-            </div>
-            <h3>Squirrel</h3>
-            <p>Agile rodents known for gathering and storing nuts.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script src="script.js"></script>
-  </body>
+		<script src="script.js"></script>
+	</body>
 </html>

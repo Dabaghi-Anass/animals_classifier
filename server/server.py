@@ -1,16 +1,18 @@
-from fastapi import FastAPI, File, UploadFile, WebSocket
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-import numpy as np
-import cv2
-import tensorflow as tf
+from fastapi import FastAPI, File, UploadFile # type: ignore
+from fastapi.responses import JSONResponse # type: ignore
+from fastapi.middleware.cors import CORSMiddleware # type: ignore
+import numpy as np # type: ignore
+import tensorflow as tf # type: ignore
 from io import BytesIO
-from PIL import Image
-import math
-import asyncio
-model = tf.keras.models.load_model("animals_classification_model_new_dataset_sgd_optimizer_v2.h5")
-input_shape = model.input_shape[1:3]
+from PIL import Image # type: ignore
+import os
+import requests # type: ignore
 
+# Define constants
+MODEL_URL = "https://drive.google.com/uc?export=view&id=1bCLIFReV6_Ctwxc6tdtrfKE1VPpIH6Up"  # Replace this with your actual model URL
+MODEL_PATH = "animals_classification_model_new_dataset_sgd_optimizer_v2.h5"
+
+# App initialization
 app = FastAPI()
 
 app.add_middleware(
@@ -20,13 +22,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Utility: Download model from URL if not already downloaded
+def download_model_if_needed():
+    if not os.path.exists(MODEL_PATH):
+        print("Model not found. Downloading...")
+        response = requests.get(MODEL_URL, stream=True)
+        with open(MODEL_PATH, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        print("Model downloaded.")
+    else:
+        print("Model already exists.")
+
+download_model_if_needed()
+
+# Load model
+model = tf.keras.models.load_model(MODEL_PATH)
+input_shape = model.input_shape[1:3]
+
+class_names = ['butterfly', "cat", "chicken", 'cow', "dog", 'elephant', "horse", "sheep", "spider", "squirrel"]
+
 def preprocess_image(image_bytes):
     img = Image.open(BytesIO(image_bytes)).convert("RGB")
     img = img.resize(input_shape)
     img_array = np.array(img) / 255.0
     return np.expand_dims(img_array, axis=0)
-
-class_names = ['butterfly', "cat", "chicken", 'cow', "dog", 'elephant', "horse", "sheep", "spider", "squirrel"]
 
 def predict(image_array):
     prediction = model.predict(image_array)
@@ -40,31 +61,6 @@ async def predict_image(file: UploadFile = File(...)):
     x = preprocess_image(contents)
     predicted_label, confidence = predict(x)
     return JSONResponse(content={
-        "prediction": str(predicted_label),
-        "confidence": str(confidence),
+        "prediction": predicted_label,
+        "confidence": f"{confidence:.4f}"
     })
-@app.websocket("/ws/video")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    try:
-        while True:
-            data = await websocket.receive_bytes()
-            nparr = np.frombuffer(data, np.uint8)
-            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            
-            if frame is None:
-                await asyncio.sleep(0.5)
-                continue
-            
-            resized = cv2.resize(frame, input_shape)
-            rgb_image = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
-            input_tensor = np.expand_dims(rgb_image / 255.0, axis=0)
-            predicted_label, confidence = predict(input_tensor)
-            await websocket.send_json({
-            "prediction": predicted_label,
-            "confidence": str(confidence)
-            })
-            await asyncio.sleep(0.5)
-    except Exception as e:
-        print("Connection closed:", e)
-        await websocket.close()
