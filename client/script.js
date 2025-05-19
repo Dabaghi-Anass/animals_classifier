@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+	const url = "https://animals-classifier-api.cleverapps.io";
 	const tabTriggers = document.querySelectorAll(".tab-trigger");
 	const tabContents = document.querySelectorAll(".tab-content");
 	const imageUpload = document.getElementById("image-upload");
@@ -77,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		formData.append("file", file);
 
 		try {
-			const serverUrl = "http://localhost:8000";
+			const serverUrl = url;
 			const response = await fetch(`${serverUrl}/predict`, {
 				method: "POST",
 				body: formData,
@@ -121,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		if (!webcamStarted) return;
 
 		try {
-			const serverUrl = "http://localhost:8000";
+			const serverUrl = url;
 			ws = new WebSocket(
 				`ws://${serverUrl.replace(/^https?:\/\//, "")}/ws/video`
 			);

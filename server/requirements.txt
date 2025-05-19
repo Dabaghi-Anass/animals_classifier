@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-tensorflow
-python-multipart
-opencv-python
-websockets
-pillow
