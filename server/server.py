@@ -7,6 +7,7 @@ import tensorflow as tf
 from io import BytesIO
 from PIL import Image
 import math
+import asyncio
 model = tf.keras.models.load_model("animals_classification_model_new_dataset_sgd_optimizer_v2.h5")
 input_shape = model.input_shape[1:3]
 
@@ -42,7 +43,6 @@ async def predict_image(file: UploadFile = File(...)):
         "prediction": str(predicted_label),
         "confidence": str(confidence),
     })
-
 @app.websocket("/ws/video")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -51,15 +51,20 @@ async def websocket_endpoint(websocket: WebSocket):
             data = await websocket.receive_bytes()
             nparr = np.frombuffer(data, np.uint8)
             frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            
             if frame is None:
+                await asyncio.sleep(0.5)
                 continue
+            
             resized = cv2.resize(frame, input_shape)
-            input_tensor = np.expand_dims(resized / 255.0, axis=0)
+            rgb_image = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
+            input_tensor = np.expand_dims(rgb_image / 255.0, axis=0)
             predicted_label, confidence = predict(input_tensor)
             await websocket.send_json({
-                "prediction": predicted_label,
-                "confidence": str(confidence)
+            "prediction": predicted_label,
+            "confidence": str(confidence)
             })
+            await asyncio.sleep(0.5)
     except Exception as e:
         print("Connection closed:", e)
         await websocket.close()
